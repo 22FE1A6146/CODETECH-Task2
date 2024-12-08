@@ -1,0 +1,62 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+# Load your dataset
+df = pd.read_csv('your_dataset.csv')  # Replace with your dataset path
+
+# Preprocess the data
+# Assuming the target column is 'target'
+X = df.drop(columns=['target'])
+y = df['target']
+
+# Encode categorical target if necessary
+y = LabelEncoder().fit_transform(y)
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Initialize models
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=1000),
+    'Decision Tree': DecisionTreeClassifier(),
+    'Random Forest': RandomForestClassifier()
+}
+
+# Evaluate each model
+results = {}
+
+for name, model in models.items():
+    # Fit the model
+    model.fit(X_train, y_train)
+    
+    # Make predictions
+    y_pred = model.predict(X_test)
+    
+    # Calculate evaluation metrics
+    metrics = {
+        'Accuracy': accuracy_score(y_test, y_pred),
+        'Precision': precision_score(y_test, y_pred, average='weighted'),
+        'Recall': recall_score(y_test, y_pred, average='weighted'),
+        'F1 Score': f1_score(y_test, y_pred, average='weighted'),
+        'Confusion Matrix': confusion_matrix(y_test, y_pred)
+    }
+    
+    # Store results
+    results[name] = metrics
+
+# Print evaluation results
+for model, metrics in results.items():
+    print(f'\n{model} Evaluation Metrics:')
+    for metric, value in metrics.items():
+        print(f'{metric}: {value}')
